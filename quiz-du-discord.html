@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<title>Quiz du Discord</title>
+<style>
+:root{--bg:#faf7f2;--card:#fff;--tx:#1f1d2b;--mut:#6b6880;--ac:#7c4dff;--ac2:#ff5d8f;--ok:#12a36b;--bd:#e6e1d8;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14131c;--card:#1f1e2b;--tx:#f2f0fa;--mut:#9a97b0;--bd:#33314a}}
+:root[data-theme="dark"]{--bg:#14131c;--card:#1f1e2b;--tx:#f2f0fa;--mut:#9a97b0;--bd:#33314a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:520px;margin:0 auto;padding:18px 16px 40px}
+@media (min-width:900px){main{max-width:880px;padding:36px 24px 60px}body{font-size:18px}h1{font-size:44px}.q{font-size:32px;margin:14px 0 10px}.code{font-size:72px;letter-spacing:14px}.card{padding:32px;border-radius:24px}button{font-size:18px;padding:16px 20px}button.opt{font-size:19px}.pl span{padding:8px 16px;font-size:18px}.bar div{padding:14px 18px}.story{font-size:20px;padding:20px}textarea{min-height:200px;font-size:18px}input{font-size:18px;padding:14px}button:not(:disabled):hover{filter:brightness(1.1)}}
+h1{font-size:28px;margin:8px 0 4px;text-align:center}
+.sub{color:var(--mut);text-align:center;margin:0 0 18px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:18px;margin:12px 0}
+.q{font-size:21px;font-weight:700;text-align:center;margin:6px 0 4px}
+.tag{display:inline-block;font-size:12px;padding:3px 10px;border-radius:99px;background:var(--ac);color:#fff}
+.top{display:flex;justify-content:space-between;align-items:center;color:var(--mut);font-size:13px}
+input,textarea{width:100%;font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:12px;padding:12px;margin:6px 0}
+textarea{min-height:130px;resize:vertical}
+button{font:inherit;font-weight:600;border:0;border-radius:12px;padding:12px 16px;cursor:pointer;background:var(--ac);color:#fff;width:100%;margin:6px 0}
+button.sec{background:transparent;color:var(--ac);border:1px solid var(--ac)}
+button.opt{background:var(--bg);color:var(--tx);border:2px solid var(--bd);text-align:left}
+button.opt.sel{border-color:var(--ac2);background:color-mix(in srgb,var(--ac2) 14%,var(--bg))}
+button:disabled{opacity:.45;cursor:default}
+.code{font-size:40px;letter-spacing:8px;font-weight:800;text-align:center;color:var(--ac)}
+.pl{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.pl span{background:var(--bg);border:1px solid var(--bd);border-radius:99px;padding:6px 12px}
+.bar{position:relative;background:var(--bg);border-radius:10px;margin:8px 0;overflow:hidden;border:1px solid var(--bd)}
+.bar i{position:absolute;inset:0 auto 0 0;background:var(--ac);opacity:.28}
+.bar.w i{background:var(--ac2);opacity:.45}
+.bar div{position:relative;display:flex;justify-content:space-between;padding:10px 12px}
+.story{background:var(--bg);border-left:4px solid var(--ac2);padding:12px;border-radius:8px;white-space:pre-wrap;margin:10px 0}
+.mut{color:var(--mut);text-align:center}
+.av{width:1.5em;height:1.5em;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:8px}
+.err{color:#d33;text-align:center}
+/* ===== Thème pixel soft ===== */
+:root{--bg:#fdf1e3;--card:#fffaf3;--tx:#3a2f4b;--mut:#7f6f93;--ac:#7a67e8;--ac2:#ff8fab;--bd:#3a2f4b;--sh:#e9d9f5;--chk:rgba(233,217,245,.55)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#2a2438;--card:#372e4c;--tx:#f7eefc;--mut:#b9aad0;--ac:#9a88ff;--ac2:#ff8fab;--bd:#120e1c;--sh:#4a3f66;--chk:rgba(74,63,102,.45)}}
+:root[data-theme="dark"]{--bg:#2a2438;--card:#372e4c;--tx:#f7eefc;--mut:#b9aad0;--ac:#9a88ff;--ac2:#ff8fab;--bd:#120e1c;--sh:#4a3f66;--chk:rgba(74,63,102,.45)}
+body{font-family:'Pixelify Sans','Courier New',monospace;font-size:18px;letter-spacing:.3px;background-color:var(--bg);background-image:linear-gradient(45deg,var(--chk) 25%,transparent 25%,transparent 75%,var(--chk) 75%),linear-gradient(45deg,var(--chk) 25%,transparent 25%,transparent 75%,var(--chk) 75%);background-size:32px 32px;background-position:0 0,16px 16px}
+h1{font-weight:700;letter-spacing:1px;text-shadow:3px 3px 0 var(--ac2)}
+.card{background:var(--card);border:4px solid var(--bd);border-radius:0;box-shadow:6px 6px 0 var(--bd)}
+.top{border-bottom:3px dotted var(--mut);padding-bottom:8px;margin-bottom:6px}
+.tag{border-radius:0;border:3px solid var(--bd);background:var(--ac2);color:#3a2f4b;font-weight:700;padding:2px 10px}
+.code{font-weight:700;text-shadow:4px 4px 0 var(--ac2);border:4px dashed var(--bd);padding:8px 0;margin:8px 0;background:var(--bg)}
+input,textarea{font-family:inherit;border:4px solid var(--bd);border-radius:0;background:var(--bg);color:var(--tx)}
+input:focus,textarea:focus{outline:none;box-shadow:4px 4px 0 var(--ac)}
+button{font-family:inherit;font-weight:700;letter-spacing:.5px;border:4px solid var(--bd);border-radius:0;background:var(--ac);color:#fff;box-shadow:0 5px 0 var(--bd);margin:8px 0 14px;text-shadow:1px 1px 0 rgba(0,0,0,.25)}
+button:active:not(:disabled){transform:translateY(4px);box-shadow:0 1px 0 var(--bd)}
+button.sec,button.opt{background:var(--card);color:var(--tx);text-shadow:none;border:4px solid var(--bd)}
+button.opt.sel{background:var(--ac2);color:#3a2f4b}
+button:disabled{opacity:.5;box-shadow:0 5px 0 var(--bd)}
+.pl span{background:var(--bg);border:3px solid var(--bd);border-radius:0;box-shadow:3px 3px 0 var(--sh)}
+.bar{border:3px solid var(--bd);border-radius:0;box-shadow:3px 3px 0 var(--sh);background:var(--card)}
+.bar i{opacity:.55}
+.bar.w{background:color-mix(in srgb,var(--ac2) 25%,var(--card))}
+.story{background:var(--card);border:4px solid var(--bd);border-radius:0;box-shadow:5px 5px 0 var(--ac2);padding:14px}
+.av{border-radius:0;border:2px solid var(--bd);image-rendering:pixelated;width:1.6em;height:1.6em}
+.mut{color:var(--mut)}
+#pv{border-radius:0!important;border:4px solid var(--bd)!important;image-rendering:pixelated}
+/* ===== Plus soft ===== */
+body{background-image:none}
+:root{--bg:#fbeee6;--card:#fffaf6;--bd:#5b4b73;--sh:#eadcf4}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#2b2539;--card:#373050;--bd:#8d7bb5;--sh:#463d63}}
+:root[data-theme="dark"]{--bg:#2b2539;--card:#373050;--bd:#8d7bb5;--sh:#463d63}
+h1{text-shadow:2px 2px 0 var(--ac2)}
+.card{border-width:3px;border-radius:6px;box-shadow:5px 5px 0 var(--sh)}
+button{border-width:3px;border-radius:6px;box-shadow:0 4px 0 var(--sh);margin:8px 0 12px}
+button:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 var(--sh)}
+button:disabled{box-shadow:0 4px 0 var(--sh)}
+button.sec,button.opt{border-width:3px}
+input,textarea{border-width:3px;border-radius:6px}
+input:focus,textarea:focus{box-shadow:3px 3px 0 var(--ac2)}
+.tag{border-width:2px;border-radius:6px}
+.code{border-width:3px;border-radius:6px;text-shadow:3px 3px 0 var(--ac2)}
+.pl span,.bar{border-width:2px;border-radius:6px;box-shadow:2px 2px 0 var(--sh)}
+.story{border-width:3px;border-radius:6px;box-shadow:4px 4px 0 var(--sh)}
+.av,#pv{border-radius:4px!important;border-width:2px!important}
+/* ===== Texte moins pixel ===== */
+body{font-family:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:17px;letter-spacing:0}
+h1,.code,.tag,button{font-family:'Pixelify Sans','Nunito',monospace}
+button.opt{font-family:'Nunito',system-ui,sans-serif;font-weight:700}
+input,textarea{font-family:'Nunito',system-ui,sans-serif}
+.q{font-weight:800}
+</style></head>
+<body><main id="app"></main>
+<script>
+/* ===== Connexion entre joueurs (PeerJS, sans compte) ===== */
+const PeerRoom={join(code,create){return new Promise((resolve,reject)=>{
+  const hostId='qdd-'+code,R={_cb:[],_state:{},_me:null,_conns:[],_hc:null};
+  const merge=(cur,p)=>{const o={...cur};for(const k in p){if(p[k]===null)delete o[k];else o[k]=p[k]}return o};
+  const emit=()=>R._cb.forEach(f=>{try{f()}catch(e){console.error(e)}});
+  const bcast=()=>{R._conns.forEach(c=>{if(c.open)c.send({t:'s',s:R._state})});emit()};
+  R.peers=()=>Object.entries(R._state).map(([id,p])=>({peer:id,kind:'viewer',presence:p,isMe:id===R._me,sameTab:id===R._me}));
+  R.onPeers=f=>R._cb.push(f);
+  R.presence=async patch=>{
+    R._state[R._me]=merge(R._state[R._me]||{},patch);
+    if(create)bcast();else{if(R._hc&&R._hc.open)R._hc.send({t:'p',p:patch});emit()}
+  };
+  let done=false;const peer=create?new Peer(hostId):new Peer();
+  peer.on('error',e=>{if(!done)reject(e);else console.error(e)});
+  if(create){
+    peer.on('open',id=>{R._me=id;R._state[id]={};done=true;resolve(R)});
+    peer.on('connection',c=>{
+      c.on('open',()=>{R._conns.push(c);R._state[c.peer]=R._state[c.peer]||{};c.send({t:'s',s:R._state})});
+      c.on('data',d=>{if(d&&d.t==='p'){R._state[c.peer]=merge(R._state[c.peer]||{},d.p);bcast()}});
+      c.on('close',()=>{R._conns=R._conns.filter(x=>x!==c);delete R._state[c.peer];bcast()});
+    });
+  }else{
+    peer.on('open',id=>{
+      R._me=id;const c=peer.connect(hostId,{reliable:true});R._hc=c;
+      const to=setTimeout(()=>{if(!done)reject(new Error('timeout'))},10000);
+      c.on('open',()=>{done=true;clearTimeout(to);R._state[id]={};resolve(R)});
+      c.on('data',d=>{if(d&&d.t==='s'){R._state=d.s;emit()}});
+      c.on('close',()=>{R._state={};emit()});
+    });
+  }
+})}};
+
+const Q=[
+["v","Qui est le plus maladroit ?"],["v","Qui va rater son train (ou son avion) à coup sûr ?"],["v","Qui est le plus radin ?"],
+["v","Qui mourrait en premier dans un film d'horreur ?"],["v","Qui ferait le meilleur président ?"],["v","Qui conduit le plus mal ?"],
+["v","Qui pleure devant un dessin animé Disney ?"],["v","Qui a le plus de chances de devenir célèbre ?"],["v","Qui a le pire goût musical ?"],
+["v","Qui est le plus de mauvaise foi ?"],["v","Qui craquerait le premier dans un escape game ?"],["v","Qui est le plus gros dormeur ?"],
+["v","Qui se perdrait même avec Google Maps ?"],["v","Qui a le plus de style ?"],["v","Qui garde les secrets le moins bien ?"],
+["v","Qui va se marier en premier ?"],["v","Qui cuisine le plus mal ?"],["v","Qui est toujours en retard ?"],
+["v","Qui est le plus drôle sans le vouloir ?"],["v","Qui survivrait le mieux sur une île déserte ?"],
+["v","Qui gagnerait au loto et dépenserait tout en une semaine ?"],["v","Qui serait le meilleur complice pour un braquage ?"],
+["a","Raconte ta pire honte en public."],["a","Raconte un fou rire que tu n'as pas pu contrôler."],["a","Raconte ton pire rendez-vous galant."],
+["a","Raconte un mensonge d'enfance dont tu es encore fier."],["a","Raconte une galère que tu as vécue en vacances."],
+["a","Raconte ta pire bêtise à l'école."],["a","Raconte une rencontre vraiment bizarre."],["a","Raconte un moment où tu as eu très très peur."],
+["t","Tier list : qui survivrait le mieux à une apocalypse zombie ?"],["t","Tier list : qui serait le/la meilleur·e colocataire ?"],["t","Tier list : qui a le meilleur humour ?"],["t","Tier list : qui gérerait le mieux une soirée qui dégénère ?"],["t","Tier list : qui serait le/la meilleur·e partenaire de road trip ?"]
+];
+const T=['🤕 Roi de la gaffe','🚆 Rate toujours son train','💸 Radin en chef','💀 Première victime du film d\'horreur','🏛️ Président·e de la République','🚗 Danger public au volant','😭 Pleure devant Disney','⭐ Future star','🎧 Oreilles en berne','🙄 Mauvaise foi certifiée','😰 Craque en escape game','😴 Marmotte officielle','🧭 Perdu·e même avec le GPS','😎 Icône de style','🤐 Bouche cousue… pas du tout','💍 Prochain·e marié·e','🍳 Poison en cuisine','⏰ Toujours en retard','🤡 Drôle malgré lui·elle','🏝️ Survivant·e de l\'île déserte','🎰 Ruiné·e en 7 jours','🕵️ Complice idéal·e'];
+T[30]='🧟 Survivant·e de l\'apocalypse zombie';T[31]='🛋️ Colocataire de rêve';T[32]='😂 Maître de l\'humour';T[33]='🍾 Roi·ne des soirées qui dégénèrent';T[34]='🚐 Copilote de road trip';
+const TLS=[['S',4],['A',3],['B',2],['C',1],['D',0]];
+const app=document.getElementById('app');
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let room=null,code='',myName='',draft='',lastSig='',tierDraft={},tierQ=-1,autoKey='',S={},VT={},W={},msg='',joinedAt=0;
+try{myName=localStorage.getItem('qn')||''}catch(e){}
+let myPhoto='';try{myPhoto=localStorage.getItem('qp')||''}catch(e){}
+const rnd=()=>{const a='ABCDEFGHJKMNPQRSTUVWXYZ23456789';let c='';for(let i=0;i<5;i++)c+=a[Math.floor(Math.random()*a.length)];return c};
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+
+async function enter(c,name,create){
+  name=name.trim().slice(0,16);c=c.trim().toUpperCase();
+  if(!name){msg='Choisis un prénom.';return home()}
+  if(!/^[A-Z0-9]{5}$/.test(c)){msg='Le code contient 5 caractères.';return home()}
+  try{localStorage.setItem('qn',name)}catch(e){}
+  let r=window.Peer?PeerRoom:null;
+  if(!r){msg="Connexion impossible : le service de connexion ne répond pas. Réessaie dans un instant.";return home()}
+  try{
+    room=await r.join(c,create);
+    myName=name;code=c;joinedAt=Date.now();
+    await room.presence({n:name,host:create?1:null,ph:okImg(myPhoto)?myPhoto:null});
+    room.onPeers(render);render();setTimeout(render,3500);
+  }catch(e){msg=create?"Code déjà utilisé, réessaie.":"Impossible de rejoindre : vérifie le code et que l'hôte est connecté.";home()}
+}
+function home(){
+  app.innerHTML=`<h1>🎉 Quiz du Discord</h1><p class="sub">Le quiz entre amis. Entrez avec un code d'invitation.</p>
+  <div class="card"><div style="display:flex;align-items:center;gap:12px;margin-bottom:4px"><span id="pv" style="width:56px;height:56px;border-radius:50%;background:var(--bg);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:24px">${okImg(myPhoto)?`<img src="${myPhoto}" style="width:100%;height:100%;object-fit:cover">`:'📷'}</span><label style="flex:1"><span class="mut" style="display:block;text-align:left">Photo (facultatif)</span><input id="pf" type="file" accept="image/*" style="margin:2px 0"></label></div><input id="nm" maxlength="16" placeholder="Ton prénom" value="${esc(myName)}">
+  <button id="cr">Créer une partie</button>
+  <p class="mut">— ou rejoindre —</p>
+  <input id="cd" maxlength="5" placeholder="CODE" style="text-transform:uppercase;text-align:center;letter-spacing:6px">
+  <button class="sec" id="jn">Rejoindre</button><p class="err">${esc(msg)}</p></div>`;
+  msg='';
+  const hh=(location.hash||'').slice(1).toUpperCase();if(/^[A-Z0-9]{5}$/.test(hh))document.getElementById('cd').value=hh;
+  document.getElementById('pf').onchange=e=>{const f=e.target.files[0];if(!f)return;const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=40;const s=Math.min(im.width,im.height),x=(im.width-s)/2,y=(im.height-s)/2;c.getContext('2d').drawImage(im,x,y,s,s,0,0,40,40);myPhoto=c.toDataURL('image/jpeg',0.5);try{localStorage.setItem('qp',myPhoto)}catch(_){}document.getElementById('pv').innerHTML=`<img src="${myPhoto}" style="width:100%;height:100%;object-fit:cover">`;URL.revokeObjectURL(im.src)};im.src=URL.createObjectURL(f)};
+  document.getElementById('cr').onclick=()=>enter(rnd(),nm.value,true);
+  document.getElementById('jn').onclick=()=>enter(cd.value,nm.value,false);
+}
+
+const okImg=s=>typeof s==='string'&&s.length<4000&&/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(s);
+const avh=p=>okImg(p.presence.ph)?`<img class="av" src="${p.presence.ph}" alt="">`:'';
+function TG(){const hp=room.peers().find(p=>p.presence.host);const gl=(hp&&hp.presence.gp)||[];return players().concat(gl.map((n,i)=>({peer:'ghost'+i,presence:{n:String(n)},isGhost:true})))}
+const LINK=location.href.split('#')[0];
+function lobbyTools(){
+  const hp=room.peers().find(p=>p.presence.host),gl=(hp&&hp.presence.gp)||[];
+  return `<hr style="border:0;border-top:3px dotted var(--mut);margin:14px 0"><button id="cp">📋 Copier le message d'invitation</button><p class="mut" style="font-size:14px">Envoie ce message à tes amis : le lien ouvre directement la partie avec le code.</p><p class="mut"><b>Ajouter un joueur absent</b> (on pourra voter pour lui sans qu'il joue)</p><div style="display:flex;gap:8px"><input id="gn" maxlength="16" placeholder="Prénom" style="margin:0"><button id="ga" style="width:auto;margin:0;padding:10px 18px">+</button></div><div class="pl" style="margin-top:10px">${gl.map((n,i)=>`<span>${esc(n)} <b data-gd="${i}" style="cursor:pointer">✕</b></span>`).join('')}</div>`;
+}
+const players=()=>room.peers().filter(p=>p.kind==='viewer'&&p.presence.n);
+const nameOf=id=>{const p=TG().find(p=>p.peer===id);return p?avh(p)+esc(p.presence.n):'?'};
+const setG=g=>room.presence({g});
+
+function startGame(){S={};VT={};W={};const ord=shuffle(Q.map((_,i)=>i));goQ(ord,0)}
+function goQ(ord,i){
+  if(i>=ord.length)return room.presence({g:{ph:'end',q:i,ord},s:S,vt:VT,w:W});
+  const t=Q[ord[i]][0],pl=players();
+  const g={ph:t==='a'?'write':'vote',q:i,ord};
+  
+  room.presence({g,s:S,vt:VT,w:W});
+}
+function startAVote(g){
+  const ao=shuffle(players().filter(p=>p.presence.a&&p.presence.a.q===g.q).map(p=>p.peer));
+  if(!ao.length)return goQ(g.ord,g.q+1);
+  setG({...g,ph:'vote',ao,ai:0});
+}
+function revealA(g){
+  const pl=players();
+  g.ao.forEach((a,i)=>pl.forEach(p=>{if(p.peer===a)return;const v=p.presence.v;if(!v||v.q!==g.q||!v.m||v.m[i]===undefined)return;if(v.m[i]===a)S[p.peer]=(S[p.peer]||0)+1;else S[a]=(S[a]||0)+1}));
+  room.presence({g:{...g,ph:'result',ri:0},s:S,vt:VT,w:W});
+}
+function reveal(g){
+  const qi=g.ord[g.q];
+  if(Q[qi][0]==='t'){
+    const pl=players(),sum={},n={};
+    const ro=pl.filter(p=>{const v=p.presence.v;return v&&v.q===g.q&&v.tl}).map(p=>p.peer);
+    
+    
+    return room.presence({g:{...g,ph:'result',ro,ri:0},s:S,vt:VT,w:W});
+  }
+  const pl=TG(),cnt={};let voters=pl.filter(p=>g.nar!==p.peer);
+  voters.forEach(p=>{const v=p.presence.v;if(v&&v.q===g.q&&pl.some(x=>x.peer===v.t)){cnt[v.t]=(cnt[v.t]||0)+1;
+    if(g.nar){if(v.t===g.nar)S[p.peer]=(S[p.peer]||0)+1;else S[g.nar]=(S[g.nar]||0)+1}}});
+  if(!g.nar){for(const k in cnt)VT[k]=(VT[k]||0)+cnt[k];const mx=Math.max(0,...Object.values(cnt));if(mx>0)W[g.ord[g.q]]=Object.keys(cnt).filter(k=>cnt[k]===mx)}
+  room.presence({g:{...g,ph:'result',r:cnt,ro:voters.filter(p=>{const v=p.presence.v;return v&&v.q===g.q&&pl.some(x=>x.peer===v.t)}).map(p=>p.peer),ri:0},s:S,vt:VT,w:W});
+}
+
+function render(){
+  if(!room)return;
+  const pl=players(),host=room.peers().find(p=>p.presence.host);
+  const me=room.peers().find(p=>p.isMe&&p.sameTab);
+  const iHost=!!(me&&me.presence.host);
+  const g=(host&&host.presence.g)||{ph:'lobby'};
+  if(host){S=host.presence.s||{};VT=host.presence.vt||{};W=host.presence.w||{}}
+  // automatismes côté hôte
+  if(iHost){
+    const key=g.ph+g.q;
+    if(g.ph==='write'){const dn=pl.filter(p=>p.presence.a&&p.presence.a.q===g.q);if(pl.length&&dn.length===pl.length&&autoKey!==key){autoKey=key;startAVote(g);return}}
+    if(g.ph==='vote'&&!g.ao){const vs=pl.filter(p=>p.peer!==g.nar);
+      if(vs.length&&vs.every(p=>p.presence.v&&p.presence.v.q===g.q)&&autoKey!==key){autoKey=key;reveal(g);return}}
+  }
+  const nar=pl.find(p=>p.peer===g.nar);
+  const sig=JSON.stringify([g.ph,g.q,pl.map(p=>[p.peer,p.presence.n,p.presence.v&&p.presence.v.q===g.q?1+Object.keys(p.presence.v.m||{}).length:0,p.presence.a&&p.presence.a.q===g.q?1:0,p.presence.ph?1:0]),!!host,iHost,S,VT,W,g.r,g.ri,g.ai,tierDraft,host&&host.presence.gp]);
+  if(sig===lastSig)return;lastSig=sig;
+  const head=`<div class="top"><span>Salon <b>${esc(code)}</b></span><span>${pl.length} joueur${pl.length>1?'s':''}</span></div>`;
+  let h=head;
+  if(!host){
+    h+=Date.now()-joinedAt<3000?`<div class="card mut">Connexion au salon…</div>`:`<div class="card mut">Personne n'a ouvert le salon <b>${esc(code)}</b>. Vérifie le code ou attends l'hôte.</div>`;
+    app.innerHTML=h;return;
+  }
+  const plist=`<div class="pl">${pl.map(p=>`<span>${avh(p)}${esc(p.presence.n)}${p.presence.host?' 👑':''}</span>`).join('')}</div>`;
+  if(g.ph==='lobby'){
+    h+=`<h1>🎉 Quiz du Discord</h1><div class="card"><p class="mut">Code d'invitation</p><div class="code">${esc(code)}</div>
+    <p class="mut">Donne ce code à tes amis (3 joueurs minimum).</p>${plist}${iHost?lobbyTools():''}</div>`+
+    (iHost?`<button id="go" ${pl.length<3?'disabled':''}>Lancer la partie (${Q.length} questions)</button>`:`<p class="mut">En attente du lancement par l'hôte…</p>`);
+  }else if(g.ph==='end'){
+    const rank=pl.map(p=>[p.peer,S[p.peer]||0]).sort((a,b)=>b[1]-a[1]);
+    const top=Object.entries(VT).sort((a,b)=>b[1]-a[1])[0];
+    const tr={};Object.entries(W).forEach(([qi,ps])=>ps.forEach(p=>{(tr[p]=tr[p]||[]).push(T[qi])}));
+    const trl=Object.entries(tr).sort((a,b)=>b[1].length-a[1].length);
+    const vr=pl.map(p=>[p.peer,VT[p.peer]||0]).sort((a,b)=>b[1]-a[1]);
+    const TT=['👑 Ennemi public n°1','🎯 Cible officielle du groupe','🔥 Suspect habituel'];
+    const MID=['😶 Figurant·e de luxe','🤷 Ni chaud ni froid','🫥 Discret·e mais suspect·e'];
+    const vmx=Math.max(1,vr.length?vr[0][1]:1);
+    const voteHtml=vr.length?`<div class="card"><b>📊 Le grand classement des votes</b>${vr.map((r,i)=>{const last=i===vr.length-1&&vr.length>3;const t=r[1]===0?'👻 Fantôme de la soirée':i<3?TT[i]:last?'😇 Saint·e innocent·e':MID[i%3];return `<div class="bar ${i===0?'w':''}"><i style="width:${r[1]/vmx*100}%"></i><div style="gap:12px"><span>${i+1}. ${nameOf(r[0])}</span><span style="text-align:right">${t} · <b>${r[1]}</b></span></div></div>`}).join('')}<p class="mut">Total des votes reçus sur toutes les questions « Qui… ? ».</p></div>`:'';
+    const nobody=pl.filter(p=>!tr[p.peer]).map(p=>esc(p.presence.n));
+    const troHtml=trl.length?`<div class="card"><b>🏅 Les trophées de la soirée</b>${trl.map(([p,l],i)=>`<div class="bar ${i===0?'w':''}"><div style="gap:12px"><span>${nameOf(p)}${i===0?' 👑':''}</span><span style="text-align:right">${l.join(' · ')}</span></div></div>`).join('')}${trl[0]?`<p class="mut">👑 Grand champion des trophées : <b>${nameOf(trl[0][0])}</b> avec ${trl[0][1].length} titre${trl[0][1].length>1?'s':''}. Félicitations (ou pas).</p>`:''}${nobody.length?`<p class="mut">🕊️ Ni vu·e ni connu·e, aucun trophée : ${nobody.join(', ')}. Louche, trop discret…</p>`:''}</div>`:'';
+    h+=`<h1>🏆 Fin de partie</h1><div class="card"><b>Classement (anecdotes)</b>${rank.map((r,i)=>`<div class="bar ${i===0?'w':''}"><div><span>${['🥇','🥈','🥉'][i]||i+1+'.'} ${nameOf(r[0])}</span><b>${r[1]} pt</b></div></div>`).join('')}</div>`+
+    troHtml+(top?`<div class="card mut">👀 Le plus désigné de la soirée : <b>${nameOf(top[0])}</b> (${top[1]} votes)</div>`:'')+
+    (iHost?`<button id="rp">Rejouer</button>`:'');
+  }else{
+    const qd=Q[g.ord[g.q]],isA=qd[0]==='a',isT=qd[0]==='t',iNar=me&&g.nar===me.peer;
+    h+=`<div class="card"><div class="top"><span class="tag">${isA?'Anecdote':isT?'Tier list':'Vote'}</span><span>${g.q+1} / ${g.ord.length}</span></div><p class="q">${esc(qd[1])}</p>`;
+    if(g.ph==='write'){
+      const sent=me&&me.presence.a&&me.presence.a.q===g.q,wr=pl.filter(p=>p.presence.a&&p.presence.a.q===g.q).length;
+      if(!sent)h+=`<p class="mut">Écris une anecdote <b>vraie</b> sur toi, sans te trahir. Elle sera lue anonymement :</p><textarea id="tx" maxlength="450" placeholder="Il était une fois…">${esc(draft)}</textarea><button id="sa">Envoyer</button>`;
+      else h+=`<p class="mut">✅ Anecdote envoyée ! On attend les autres…</p>`;
+      h+=`<p class="mut">${wr} / ${pl.length} ont écrit</p>`;
+      if(iHost)h+=`<button class="sec" id="fs">Lancer sans attendre</button><button class="sec" id="sk">Passer cette question</button>`;
+    }else if(false){
+      if(iNar)h+=`<p class="mut">C'est toi le narrateur ! Écris ton anecdote sans te trahir :</p><textarea id="tx" maxlength="450" placeholder="Il était une fois…">${esc(draft)}</textarea><button id="sa">Envoyer</button>`;
+      else h+=`<p class="mut">✍️ Quelqu'un écrit son anecdote… à vous de deviner qui !</p>`;
+      if(iHost)h+=`<button class="sec" id="sk">Passer cette question</button>`;
+    }else if(g.ph==='vote'&&isA&&g.ao){
+      const ai=g.ai||0,au=g.ao[ai],ap=pl.find(p=>p.peer===au),story=ap&&ap.presence.a?ap.presence.a.t:'(anecdote perdue)';
+      const mine=me&&me.presence.v&&me.presence.v.q===g.q&&me.presence.v.m?me.presence.v.m:{};
+      const iAuth=me&&me.peer===au,mv=mine[ai];
+      h+=`<p class="mut">Anecdote ${ai+1} / ${g.ao.length}</p><div class="story">${esc(story)}</div>`;
+      if(iAuth)h+=`<p class="mut">C'est la tienne 🤫 Garde ton air innocent…</p>`;
+      else h+=`<p class="mut">À ton avis, qui a écrit ça ?</p>`+TG().filter(p=>!(me&&p.peer===me.peer)).map(p=>`<button class="opt ${mv===p.peer?'sel':''}" data-a="${p.peer}">${avh(p)}${esc(p.presence.n)}</button>`).join('');
+      const el=pl.filter(p=>p.peer!==au),dn=el.filter(p=>{const v=p.presence.v;return v&&v.q===g.q&&v.m&&v.m[ai]!==undefined}).length;
+      h+=`<p class="mut">${dn} / ${el.length} ont voté</p>`;
+      if(iHost)h+=`<button class="sec" id="an">${ai<g.ao.length-1?'Anecdote suivante':'Découvrir les auteurs'}</button>`;
+    }else if(g.ph==='vote'&&isT){
+      if(tierQ!==g.q){tierQ=g.q;tierDraft={}}
+      const sent=me&&me.presence.v&&me.presence.v.q===g.q;
+      if(sent)h+=`<p class="mut">✅ Ta tier list est envoyée, on attend les autres…</p>`;
+      else h+=`<p class="mut">Place chaque personne : S (au top) → D (au fond)</p>`+TG().map(p=>`<div style="margin:8px 0"><b>${avh(p)}${esc(p.presence.n)}</b><div style="display:flex;gap:6px">${TLS.map(([l,val])=>`<button class="opt ${tierDraft[p.peer]===val?'sel':''}" style="text-align:center;padding:8px 0;margin:4px 0" data-t="${p.peer}" data-i="${val}">${l}</button>`).join('')}</div></div>`).join('')+`<button id="tv" ${TG().every(p=>tierDraft[p.peer]!==undefined)?'':'disabled'}>Valider ma tier list</button>`;
+      const done=pl.filter(p=>p.presence.v&&p.presence.v.q===g.q).length;
+      h+=`<p class="mut">${done} / ${pl.length} ont envoyé leur tier list</p>`;
+      if(iHost)h+=`<button class="sec" id="rv">Révéler maintenant</button>`;
+    }else if(g.ph==='vote'){
+      if(isA&&nar&&nar.presence.a)h+=`<div class="story">${esc(nar.presence.a.t)}</div>`;
+      const mv=me&&me.presence.v&&me.presence.v.q===g.q?me.presence.v.t:null;
+      if(iNar)h+=`<p class="mut">Les autres cherchent qui tu es 😏</p>`;
+      else h+=`<p class="mut">${isA?'À ton avis, qui a vécu ça ?':'Vote pour une personne :'}</p>`+TG().map(p=>`<button class="opt ${mv===p.peer?'sel':''}" data-v="${p.peer}">${avh(p)}${esc(p.presence.n)}</button>`).join('');
+      const vs=pl.filter(p=>p.peer!==g.nar),done=vs.filter(p=>p.presence.v&&p.presence.v.q===g.q).length;
+      h+=`<p class="mut">${done} / ${vs.length} ont voté</p>`;
+      if(iHost)h+=`<button class="sec" id="rv">Révéler maintenant</button>`;
+    }else if(isA&&g.ao){
+      const k=g.ri||0,au=g.ao[k],ap=pl.find(p=>p.peer===au),story=ap&&ap.presence.a?ap.presence.a.t:'';
+      const guessed=pl.filter(p=>p.peer!==au&&p.presence.v&&p.presence.v.q===g.q&&p.presence.v.m&&p.presence.v.m[k]===au);
+      h+=`<p class="mut">Anecdote ${k+1} / ${g.ao.length}</p><div class="story">${esc(story)}</div><p class="q">✍️ C'était ${nameOf(au)} !</p><p class="mut">${guessed.length?'Bien vu : '+guessed.map(p=>esc(p.presence.n)).join(', '):'Personne n\'a trouvé 😈'}</p>`;
+      const more=k<g.ao.length-1;
+      if(iHost)h+=`<button id="nx" data-more="${more?1:0}">${more?'Auteur suivant':g.q+1>=g.ord.length?'Voir le classement':'Question suivante'}</button>`;
+      else h+=`<p class="mut">L'hôte dévoile les auteurs…</p>`;
+    }else if(isT&&g.ro){
+      const k=g.ri||0,owner=g.ro[k],op=pl.find(p=>p.peer===owner),tl=(op&&op.presence.v&&op.presence.v.tl)||{};
+      h+=`<p class="mut">Tier list ${k+1} / ${g.ro.length} : celle de <b>${nameOf(owner)}</b> 👀</p>`+TLS.map(([l,val])=>{const ps=TG().filter(p=>tl[p.peer]===val);return `<div class="bar ${val===4?'w':''}"><div><b style="width:28px">${l}</b><span style="flex:1;padding-left:8px">${ps.length?ps.map(p=>esc(p.presence.n)).join(' · '):'<em style="opacity:.5">personne</em>'}</span></div></div>`}).join('');
+      const more=k<g.ro.length-1;
+      if(iHost)h+=`<button id="nx" data-more="${more?1:0}">${more?'Tier list suivante':g.q+1>=g.ord.length?'Voir le classement':'Question suivante'}</button>`;
+      else h+=`<p class="mut">L'hôte fait défiler les tier lists…</p>`;
+    }else if(isT){
+      const r=g.r||{};
+      h+=`<p class="mut">La tier list du groupe (moyenne des notes, sans compter son propre vote) :</p>`+TLS.map(([l,val])=>{const ps=pl.filter(p=>r[p.peer]!==undefined&&Math.round(r[p.peer])===val).sort((a,b)=>r[b.peer]-r[a.peer]);return `<div class="bar ${val===4?'w':''}"><div><b style="width:28px">${l}</b><span style="flex:1;padding-left:8px">${ps.length?ps.map(p=>`${esc(p.presence.n)} <small>(${r[p.peer].toFixed(1)})</small>`).join(' · '):'<em style="opacity:.5">personne</em>'}</span></div></div>`}).join('');
+      if(iHost)h+=`<button id="nx">${g.q+1>=g.ord.length?'Voir le classement':'Question suivante'}</button>`;
+      else h+=`<p class="mut">L'hôte lance la suite…</p>`;
+    }else if(g.ro){
+      const k=g.ri||0,n=g.ro.length,fin=isA&&k>=n;
+      if(isA&&nar&&nar.presence.a)h+=`<div class="story">${esc(nar.presence.a.t)}</div>`;
+      if(fin){
+        const ok=g.ro.filter(id=>{const p=pl.find(x=>x.peer===id);return p&&p.presence.v&&p.presence.v.t===g.nar});
+        h+=`<p class="q">🎭 C'était l'anecdote de ${nameOf(g.nar)} !</p><p class="mut">${ok.length?'Bien joué : '+ok.map(nameOf).join(', '):'Personne n\'a trouvé 😈'}</p>`;
+      }else if(n===0){h+=`<p class="mut">Personne n'a voté 🤷</p>`}
+      else{
+        const id=g.ro[k],vp=pl.find(x=>x.peer===id),tg=vp&&vp.presence.v?vp.presence.v.t:null;
+        h+=`<p class="mut">Vote ${k+1} / ${n}</p><p class="q">${nameOf(id)} ${isA?'pense que c\'est':'a voté pour'}</p><div class="bar w"><div style="justify-content:center;font-size:22px;font-weight:700">${tg?nameOf(tg):'?'}</div></div>`;
+      }
+      const more=k<(isA?n:n-1);
+      if(iHost)h+=`<button id="nx" data-more="${more?1:0}">${more?(isA&&k===n-1?'Révéler la réponse':'Vote suivant'):g.q+1>=g.ord.length?'Voir le classement':'Question suivante'}</button>`;
+      else h+=`<p class="mut">L'hôte fait défiler les votes…</p>`;
+    }else{
+      const r=g.r||{},max=Math.max(1,...Object.values(r));
+      if(isA){if(nar&&nar.presence.a)h+=`<div class="story">${esc(nar.presence.a.t)}</div>`;h+=`<p class="mut">C'était l'anecdote de <b>${nameOf(g.nar)}</b> !</p>`}
+      h+=pl.map(p=>{const c=r[p.peer]||0,w=isA?p.peer===g.nar:c===Math.max(...Object.values(r).concat(0))&&c>0;
+        return `<div class="bar ${w?'w':''}"><i style="width:${c/max*100}%"></i><div><span>${esc(p.presence.n)}${w?' 👈':''}</span><b>${c}</b></div></div>`}).join('');
+      if(iHost)h+=`<button id="nx">${g.q+1>=g.ord.length?'Voir le classement':'Question suivante'}</button>`;
+      else h+=`<p class="mut">L'hôte lance la suite…</p>`;
+    }
+    h+=`</div>`;
+  }
+  app.innerHTML=h;
+  const $=id=>document.getElementById(id);
+  if($('go'))$('go').onclick=startGame;
+  if($('rp'))$('rp').onclick=()=>{S={};VT={};W={};room.presence({g:{ph:'lobby'},s:{},vt:{},w:{}})};
+  if($('tx'))$('tx').oninput=e=>draft=e.target.value;
+  if($('tv'))$('tv').onclick=()=>room.presence({v:{q:g.q,tl:{...tierDraft}}});
+  app.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{tierDraft[b.dataset.t]=+b.dataset.i;lastSig='';render()});
+  if($('sa'))$('sa').onclick=()=>{const t=draft.trim();if(t){room.presence({a:{q:g.q,t}});draft=''}};
+  if($('sk'))$('sk').onclick=()=>goQ(g.ord,g.q+1);
+  if($('fs'))$('fs').onclick=()=>startAVote(g);
+  if($('cp'))$('cp').onclick=async()=>{const t=`Rejoins le Quiz du Discord ! 🎉\nLien : ${LINK}#${code}\nCode de la partie : ${code}`;try{await navigator.clipboard.writeText(t);$('cp').textContent='✅ Copié !'}catch(e){$('cp').insertAdjacentHTML('afterend','<textarea readonly id="ct" style="min-height:90px">'+esc(t)+'</textarea>');$('ct').select()}};
+  if($('ga'))$('ga').onclick=()=>{const v=$('gn').value.trim().slice(0,16);if(!v)return;const gl=((me&&me.presence.gp)||[]).slice();if(gl.length>=12)return;gl.push(v);room.presence({gp:gl})};
+  app.querySelectorAll('[data-gd]').forEach(b=>b.onclick=()=>{const gl=((me&&me.presence.gp)||[]).slice();gl.splice(+b.dataset.gd,1);room.presence({gp:gl})});
+  if($('an'))$('an').onclick=()=>{const ai=g.ai||0;if(ai<g.ao.length-1)setG({...g,ai:ai+1});else revealA(g)};
+  app.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{const cur=me&&me.presence.v&&me.presence.v.q===g.q&&me.presence.v.m?me.presence.v.m:{};room.presence({v:{q:g.q,m:{...cur,[g.ai||0]:b.dataset.a}}})});
+  if($('rv'))$('rv').onclick=()=>reveal(g);
+  if($('nx'))$('nx').onclick=()=>{if($('nx').dataset.more==='1')setG({...g,ri:(g.ri||0)+1});else goQ(g.ord,g.q+1)};
+  app.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>room.presence({v:{q:g.q,t:b.dataset.v}}));
+}
+home();
+</script></body></html>
